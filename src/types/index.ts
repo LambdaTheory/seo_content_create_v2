@@ -13,4 +13,16 @@ export type {
   ModalHeaderProps,
   ModalBodyProps,
   ModalFooterProps
-} from '@/components/ui/Modal/Modal.types'; 
+} from '@/components/ui/Modal/Modal.types';
+export type { 
+  TableProps,
+  TableColumn,
+  TableSorter,
+  TableFilter,
+  TablePagination,
+  TableRowSelection,
+  TableVirtualScroll,
+  TableHeaderProps,
+  TableCellProps,
+  TableRowProps 
+} from '@/components/ui/Table/Table.types'; 

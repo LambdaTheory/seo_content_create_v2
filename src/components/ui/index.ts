@@ -3,6 +3,7 @@ export { Button } from './Button';
 export { Card } from './Card';
 export { Input } from './Input';
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './Modal';
+export { Table } from './Table';
 
 // 类型导出
 export type { ButtonProps } from './Button/Button.types';
@@ -13,4 +14,12 @@ export type {
   ModalHeaderProps, 
   ModalBodyProps, 
   ModalFooterProps 
-} from './Modal/Modal.types'; 
+} from './Modal/Modal.types';
+export type { 
+  TableProps,
+  TableColumn,
+  TableSorter,
+  TableFilter,
+  TablePagination,
+  TableRowSelection 
+} from './Table/Table.types'; 
