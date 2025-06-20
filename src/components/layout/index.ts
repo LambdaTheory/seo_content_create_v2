@@ -16,6 +16,10 @@ export {
   Breadcrumb
 } from './Header';
 
+export {
+  Sidebar
+} from './Sidebar';
+
 export type {
   LayoutProps,
   LayoutContainerProps,
