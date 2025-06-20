@@ -2,6 +2,13 @@
 export { Button } from './Button';
 export { Card } from './Card';
 export { Dropdown, Select } from './Dropdown';
+export { 
+  FileUpload,
+  DragDropArea,
+  FileList,
+  FilePreview,
+  useFileUpload 
+} from './FileUpload';
 export { Form, useForm } from './Form';
 export { Input } from './Input';
 export { 
@@ -26,6 +33,15 @@ export type {
   DropdownOption,
   SelectProps,
 } from './Dropdown/Dropdown.types';
+export type {
+  FileUploadProps,
+  FileItem,
+  DragDropAreaProps,
+  FileListProps,
+  FilePreviewProps,
+  UploadOptions,
+  UseFileUploadReturn
+} from './FileUpload/FileUpload.types';
 export type { 
   FormProps,
   FormField,
