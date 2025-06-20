@@ -115,7 +115,7 @@ export class ResultExportService {
       const exportResult: ExportResult = {
         success: false,
         fileName: this.generateFileName(result.gameName, config.format),
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         metadata: {
           exportTime: new Date().toISOString(),
           totalRecords: 0,
@@ -149,7 +149,7 @@ export class ResultExportService {
       return {
         success: false,
         fileName: `batch_export_${Date.now()}.${config.format}`,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
         metadata: {
           exportTime: new Date().toISOString(),
           totalRecords: 0,
@@ -192,8 +192,7 @@ export class ResultExportService {
 
     const jsonString = JSON.stringify(exportData, null, 2);
     return new Blob([jsonString], { 
-      type: 'application/json',
-      encoding: config.encoding || 'utf-8'
+      type: 'application/json'
     });
   }
 
@@ -213,8 +212,7 @@ export class ResultExportService {
     ].join('\n');
 
     return new Blob([csvContent], { 
-      type: 'text/csv',
-      encoding: config.encoding || 'utf-8'
+      type: 'text/csv'
     });
   }
 
@@ -243,8 +241,7 @@ export class ResultExportService {
     }
 
     return new Blob([textContent], { 
-      type: 'text/plain',
-      encoding: config.encoding || 'utf-8'
+      type: 'text/plain'
     });
   }
 
@@ -498,6 +495,108 @@ export class ResultExportService {
       URL.revokeObjectURL(exportResult.downloadUrl);
       exportResult.downloadUrl = undefined;
     }
+  }
+
+  /**
+   * 验证导出配置
+   */
+  validateConfig(config: ExportConfig): boolean {
+    if (!config) {
+      throw new Error('导出配置不能为空');
+    }
+    
+    if (!config.format || !Object.values(ExportFormat).includes(config.format)) {
+      throw new Error('无效的导出格式');
+    }
+    
+    if (config.encoding && !['utf-8', 'utf-16', 'ascii'].includes(config.encoding)) {
+      throw new Error('无效的编码格式');
+    }
+    
+    return true;
+  }
+
+  /**
+   * 验证结果数据
+   */
+  validateResult(result: PreviewGenerationResult): boolean {
+    if (!result) {
+      return false;
+    }
+    
+    if (!result.gameId || !result.gameName || !result.content) {
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * 转换为JSON格式
+   */
+  convertToJson(result: PreviewGenerationResult, options: {
+    includeMetadata?: boolean;
+    includeQualityAnalysis?: boolean;
+  } = {}): any {
+    const jsonData: any = {
+      gameId: result.gameId,
+      gameName: result.gameName,
+      content: result.content.rawContent
+    };
+
+    if (options.includeMetadata && result.metadata) {
+      jsonData.metadata = result.metadata;
+    }
+
+    if (options.includeQualityAnalysis && result.qualityAnalysis) {
+      jsonData.qualityAnalysis = result.qualityAnalysis;
+    }
+
+    return jsonData;
+  }
+
+  /**
+   * 转换为CSV格式
+   */
+  convertToCsv(results: PreviewGenerationResult[], options: {
+    includeMetadata?: boolean;
+    includeQualityAnalysis?: boolean;
+  } = {}): string {
+    if (!results || results.length === 0) {
+      return '';
+    }
+
+    const headers = ['gameId', 'gameName', 'content'];
+    
+    if (options.includeMetadata) {
+      headers.push('metadata');
+    }
+    
+    if (options.includeQualityAnalysis) {
+      headers.push('qualityAnalysis');
+    }
+
+    const rows = [headers.join(',')];
+    
+    results.forEach(result => {
+      const row = [
+        `"${result.gameId}"`,
+        `"${result.gameName}"`,
+        `"${JSON.stringify(result.content.rawContent).replace(/"/g, '""')}"`
+      ];
+      
+      if (options.includeMetadata) {
+        row.push(`"${JSON.stringify(result.metadata || {}).replace(/"/g, '""')}"`);
+      }
+      
+      if (options.includeQualityAnalysis) {
+        row.push(`"${JSON.stringify(result.qualityAnalysis || {}).replace(/"/g, '""')}"`);
+      }
+      
+      rows.push(row.join(','));
+    });
+
+    return rows.join('\n');
   }
 }
 

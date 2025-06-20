@@ -13,7 +13,12 @@
     "type-check": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
-    "clean": "rm -rf .next out"
+    "clean": "rm -rf .next out",
+    "deploy": "scripts/deploy.sh",
+    "deploy:preview": "scripts/deploy.sh preview",
+    "deploy:production": "scripts/deploy.sh production",
+    "verify:build": "npm run type-check && npm run lint && npm run test -- --passWithNoTests",
+    "precommit": "npm run format && npm run lint:fix && npm run type-check"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",

@@ -91,11 +91,18 @@ export class MultiLevelCacheService {
     ttl?: number, 
     forceLocalStorage = false
   ): Promise<void> {
+    const finalTtl = ttl !== undefined ? ttl : this.config.defaultTtl;
+    
+    // 如果TTL为0，不缓存数据（立即过期）
+    if (finalTtl === 0) {
+      return;
+    }
+    
     const now = Date.now();
     const cacheItem: CacheItem<T> = {
       data,
       timestamp: now,
-      ttl: ttl || this.config.defaultTtl,
+      ttl: finalTtl,
       accessCount: 0,
       lastAccess: now,
       size: this.calculateSize(data)
@@ -395,6 +402,10 @@ export class MultiLevelCacheService {
    * 检查缓存项是否过期
    */
   private isExpired(item: CacheItem, now: number): boolean {
+    // TTL为0表示立即过期
+    if (item.ttl === 0) {
+      return true;
+    }
     return now - item.timestamp > item.ttl * 1000;
   }
 

@@ -93,7 +93,14 @@ describe('MultiLevelCacheService', () => {
       await cacheService.set('key1', 'data1');
       await cacheService.set('key2', 'data2');
       
+      // 确保数据已设置
+      expect(await cacheService.get('key1')).toBe('data1');
+      expect(await cacheService.get('key2')).toBe('data2');
+      
       await cacheService.clear();
+      
+      // 小延迟确保清理完成
+      await new Promise(resolve => setTimeout(resolve, 10));
       
       const result1 = await cacheService.get('key1');
       const result2 = await cacheService.get('key2');
@@ -199,12 +206,15 @@ describe('MultiLevelCacheService', () => {
 
   describe('缓存容量管理', () => {
     test('应该在达到最大条目数时清理内存缓存', async () => {
-      // 添加超过限制的缓存项
-      for (let i = 0; i < 7; i++) {
+      // 添加超过限制的缓存项 (testConfig.memoryMaxItems = 5)
+      for (let i = 0; i < 8; i++) {
         await cacheService.set(`key${i}`, `data${i}`);
-        // 小延迟确保时间戳不同
-        await new Promise(resolve => setTimeout(resolve, 1));
+        // 小延迟确保时间戳不同和清理触发
+        await new Promise(resolve => setTimeout(resolve, 5));
       }
+      
+      // 给清理过程一些时间
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       const stats = cacheService.getStats();
       expect(stats.memory.items).toBeLessThanOrEqual(testConfig.memoryMaxItems!);
