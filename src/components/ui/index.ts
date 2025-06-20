@@ -1,4 +1,17 @@
 // 基础UI组件统一导出
+export { 
+  Avatar,
+  StatusAvatar,
+  UploadAvatar,
+  AvatarGroup
+} from './Avatar';
+export { 
+  Badge,
+  StatusBadge,
+  CountBadge,
+  NotificationBadge,
+  BadgeGroup
+} from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
 export { Dropdown, Select } from './Dropdown';
@@ -24,8 +37,31 @@ export {
 } from './Loading';
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './Modal';
 export { Table } from './Table';
+export { 
+  Tag,
+  EditableTag,
+  CategoryTag,
+  TagGroup
+} from './Tag';
 
 // 类型导出
+export type {
+  AvatarProps,
+  AvatarGroupProps,
+  StatusAvatarProps,
+  UploadAvatarProps,
+  AvatarSize,
+  AvatarVariant
+} from './Avatar/Avatar.types';
+export type {
+  BadgeProps,
+  BadgeGroupProps,
+  StatusBadgeProps,
+  CountBadgeProps,
+  NotificationBadgeProps,
+  BadgeVariant,
+  BadgeSize
+} from './Badge/Badge.types';
 export type { ButtonProps } from './Button/Button.types';
 export type { CardProps } from './Card/Card.types';
 export type {
@@ -76,4 +112,12 @@ export type {
   TableFilter,
   TablePagination,
   TableRowSelection 
-} from './Table/Table.types'; 
+} from './Table/Table.types';
+export type {
+  TagProps,
+  TagGroupProps,
+  EditableTagProps,
+  CategoryTagProps,
+  TagVariant,
+  TagSize
+} from './Tag/Tag.types'; 
