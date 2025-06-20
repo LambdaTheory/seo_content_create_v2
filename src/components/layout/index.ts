@@ -3,8 +3,7 @@ export {
   LayoutContainer, 
   ContentArea, 
   LayoutDivider, 
-  LayoutGrid,
-  useLayout
+  LayoutGrid
 } from './Layout';
 
 export {
@@ -24,6 +23,10 @@ export {
   Footer,
   useFooterStatus
 } from './Footer';
+
+export {
+  Navigation
+} from './Navigation';
 
 export type {
   LayoutProps,
