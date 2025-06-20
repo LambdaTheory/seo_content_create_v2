@@ -187,4 +187,35 @@ export { CompetitorDatabaseService } from './CompetitorDatabaseService';
 // 游戏匹配和分析服务
 export { GameMatchingService } from './GameMatchingService';
 export { GameNameNormalizationService } from './GameNameNormalizationService';
-export { KeywordExtractionService } from './KeywordExtractionService'; 
+export { KeywordExtractionService } from './KeywordExtractionService';
+export { GameMatchingSortingService } from './GameMatchingSortingService';
+
+// 导出类型定义
+export type { 
+  MatchResult, 
+  MatchingConfig, 
+  StringSimilarityResult,
+  MatchType,
+  MatchingStats
+} from './GameMatchingService';
+
+export type {
+  NormalizationConfig,
+  NormalizationResult,
+  NormalizationRule
+} from './GameNameNormalizationService';
+
+export type {
+  KeywordConfig,
+  ExtractedKeyword,
+  KeywordExtractionResult,
+  KeywordStats,
+  WeightStrategy
+} from './KeywordExtractionService';
+
+export type {
+  SortingDimension,
+  SortingConfig,
+  EnhancedMatchResult,
+  SortingStats
+} from './GameMatchingSortingService'; 
