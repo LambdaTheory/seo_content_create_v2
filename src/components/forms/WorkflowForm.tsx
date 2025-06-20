@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/Input';
 import { Form } from '@/components/ui/Form';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/utils/classNames';
+import { ContentSettingsForm } from '@/components/settings';
+import { ContentSettings, GenerationMode } from '@/types/ContentSettings.types';
 
 /**
  * 工作流表单属性
@@ -41,6 +43,7 @@ export interface WorkflowFormData {
   structuredDataTypes: string[];
   status: 'active' | 'inactive' | 'draft';
   isDefault: boolean;
+  contentSettings?: ContentSettings;
 }
 
 /**
@@ -126,6 +129,7 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
     structuredDataTypes: ['videoGame'],
     status: 'active',
     isDefault: false,
+    contentSettings: undefined,
   });
 
   // 表单验证错误
@@ -144,6 +148,7 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
           structuredDataTypes: workflow.structuredDataTypes || ['videoGame'],
           status: workflow.status,
           isDefault: workflow.isDefault || false,
+          contentSettings: workflow.contentSettings || undefined,
         });
       } else {
         // 创建模式 - 重置为默认值
@@ -265,7 +270,7 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
           </div>
         )}
 
-        <Form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           {/* 基本信息 */}
           <div className="space-y-4">
             <h3 className="text-lg font-medium text-gray-900">基本信息</h3>
@@ -275,10 +280,13 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
               label="工作流名称"
               value={formData.name}
               onChange={(e) => handleInputChange('name', e.target.value)}
-              error={errors.name}
+              error={!!errors.name}
               placeholder="请输入工作流名称"
               required
             />
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+            )}
 
             {/* 工作流描述 */}
             <div>
@@ -415,6 +423,20 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
             )}
           </div>
 
+          {/* 内容设置 */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">内容生成设置</h3>
+            
+            <ContentSettingsForm
+              initialValue={formData.contentSettings}
+              onChange={(settings) => handleInputChange('contentSettings', settings)}
+              onSubmit={(settings) => handleInputChange('contentSettings', settings)}
+              showPresets={false}
+              showSteps={false}
+              compact={true}
+            />
+          </div>
+
           {/* 表单操作按钮 */}
           <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <Button
@@ -433,7 +455,7 @@ export const WorkflowForm: React.FC<WorkflowFormProps> = ({
               {workflow ? '更新工作流' : '创建工作流'}
             </Button>
           </div>
-        </Form>
+        </form>
       </div>
     </Modal>
   );

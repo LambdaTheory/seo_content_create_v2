@@ -1,0 +1,327 @@
+/* ResultsList组件样式 */
+
+.resultsList {
+  @apply flex flex-col h-full bg-white border border-gray-200 rounded-lg shadow-sm;
+}
+
+/* 工具栏样式 */
+.toolbar {
+  @apply flex flex-col lg:flex-row lg:items-center lg:justify-between p-4 bg-gray-50 border-b border-gray-200 rounded-t-lg gap-4;
+}
+
+.filters {
+  @apply flex flex-col sm:flex-row gap-3 flex-1;
+}
+
+.searchInput {
+  @apply flex-1 min-w-0;
+}
+
+.statusFilter {
+  @apply w-full sm:w-48;
+}
+
+.actions {
+  @apply flex flex-col sm:flex-row gap-3 lg:flex-shrink-0;
+}
+
+.sortSelect {
+  @apply w-full sm:w-52;
+}
+
+.batchActions {
+  @apply flex items-center gap-3 text-sm;
+}
+
+.selectedCount {
+  @apply font-medium text-gray-700;
+}
+
+/* 批量选择栏 */
+.bulkSelectBar {
+  @apply px-4 py-2 bg-blue-50 border-b border-blue-200;
+}
+
+.selectAllCheckbox {
+  @apply flex items-center gap-2 text-sm font-medium text-blue-700 cursor-pointer;
+}
+
+.selectAllCheckbox input {
+  @apply rounded border-blue-300 text-blue-600 focus:ring-blue-500;
+}
+
+/* 结果容器 */
+.resultsContainer {
+  @apply flex-1 overflow-auto;
+}
+
+/* 空状态 */
+.emptyState {
+  @apply flex flex-col items-center justify-center h-64 text-gray-500;
+}
+
+.emptyIcon {
+  @apply text-6xl mb-4;
+}
+
+.emptyTitle {
+  @apply text-xl font-semibold mb-2;
+}
+
+.emptyDescription {
+  @apply text-center max-w-md;
+}
+
+/* 结果项样式 */
+.resultItem {
+  @apply flex items-start gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors duration-150;
+}
+
+.resultItemSelected {
+  @apply bg-blue-50 border-l-4 border-l-blue-500;
+}
+
+.resultCheckbox {
+  @apply flex-shrink-0 mt-1;
+}
+
+.resultCheckbox input {
+  @apply rounded border-gray-300 text-blue-600 focus:ring-blue-500;
+}
+
+.resultMain {
+  @apply flex-1 min-w-0;
+}
+
+.resultHeader {
+  @apply flex items-start justify-between gap-4 mb-2;
+}
+
+.gameName {
+  @apply text-lg font-semibold text-gray-900 truncate;
+}
+
+.status {
+  @apply flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium flex-shrink-0;
+}
+
+.statusIcon {
+  @apply text-sm;
+}
+
+.statusText {
+  @apply capitalize;
+}
+
+/* 状态样式 */
+.statusCompleted {
+  @apply bg-green-100 text-green-800;
+}
+
+.statusProcessing {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.statusFailed {
+  @apply bg-red-100 text-red-800;
+}
+
+.statusCancelled {
+  @apply bg-gray-100 text-gray-800;
+}
+
+.statusPending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+/* 元信息 */
+.resultMeta {
+  @apply flex flex-wrap gap-4 text-sm text-gray-600 mb-3;
+}
+
+.metaItem {
+  @apply flex-shrink-0;
+}
+
+/* 质量评分 */
+.qualityScore {
+  @apply flex items-center gap-2 mb-3;
+}
+
+.qualityLabel {
+  @apply text-sm text-gray-600;
+}
+
+.qualityValue {
+  @apply text-sm font-semibold;
+}
+
+/* 元数据 */
+.metadata {
+  @apply flex flex-wrap gap-4 text-xs text-gray-500;
+}
+
+.metadataItem {
+  @apply flex-shrink-0;
+}
+
+/* 操作按钮 */
+.resultActions {
+  @apply flex items-center gap-1 flex-shrink-0;
+}
+
+.deleteButton:hover {
+  @apply text-red-600 bg-red-50;
+}
+
+/* 底部统计 */
+.footer {
+  @apply px-4 py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg;
+}
+
+.stats {
+  @apply flex items-center justify-between text-sm text-gray-600;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .toolbar {
+    @apply p-3 gap-3;
+  }
+  
+  .filters {
+    @apply gap-2;
+  }
+  
+  .actions {
+    @apply gap-2;
+  }
+  
+  .resultItem {
+    @apply p-3 gap-3;
+  }
+  
+  .resultHeader {
+    @apply flex-col items-start gap-2;
+  }
+  
+  .gameName {
+    @apply text-base;
+  }
+  
+  .resultMeta {
+    @apply gap-3;
+  }
+  
+  .resultActions {
+    @apply self-end mt-2;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    @apply p-2 gap-2;
+  }
+  
+  .statusFilter,
+  .sortSelect {
+    @apply w-full;
+  }
+  
+  .batchActions {
+    @apply flex-col items-start gap-2;
+  }
+  
+  .resultItem {
+    @apply flex-col gap-2;
+  }
+  
+  .resultMain {
+    @apply order-2;
+  }
+  
+  .resultCheckbox {
+    @apply order-1 self-start;
+  }
+  
+  .resultActions {
+    @apply order-3 self-end;
+  }
+}
+
+/* 深色主题支持 */
+[data-theme="dark"] .resultsList {
+  @apply bg-gray-900 border-gray-700;
+}
+
+[data-theme="dark"] .toolbar {
+  @apply bg-gray-800 border-gray-700;
+}
+
+[data-theme="dark"] .bulkSelectBar {
+  @apply bg-blue-900 border-blue-800;
+}
+
+[data-theme="dark"] .selectAllCheckbox {
+  @apply text-blue-300;
+}
+
+[data-theme="dark"] .resultItem {
+  @apply border-gray-700 hover:bg-gray-800;
+}
+
+[data-theme="dark"] .resultItemSelected {
+  @apply bg-blue-900 border-l-blue-400;
+}
+
+[data-theme="dark"] .gameName {
+  @apply text-gray-100;
+}
+
+[data-theme="dark"] .resultMeta {
+  @apply text-gray-400;
+}
+
+[data-theme="dark"] .qualityLabel {
+  @apply text-gray-400;
+}
+
+[data-theme="dark"] .metadata {
+  @apply text-gray-500;
+}
+
+[data-theme="dark"] .footer {
+  @apply bg-gray-800 border-gray-700;
+}
+
+[data-theme="dark"] .stats {
+  @apply text-gray-400;
+}
+
+[data-theme="dark"] .emptyState {
+  @apply text-gray-400;
+}
+
+[data-theme="dark"] .selectedCount {
+  @apply text-gray-300;
+}
+
+[data-theme="dark"] .statusCompleted {
+  @apply bg-green-900 text-green-300;
+}
+
+[data-theme="dark"] .statusProcessing {
+  @apply bg-blue-900 text-blue-300;
+}
+
+[data-theme="dark"] .statusFailed {
+  @apply bg-red-900 text-red-300;
+}
+
+[data-theme="dark"] .statusCancelled {
+  @apply bg-gray-700 text-gray-300;
+}
+
+[data-theme="dark"] .statusPending {
+  @apply bg-yellow-900 text-yellow-300;
+} 

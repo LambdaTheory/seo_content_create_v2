@@ -1,3 +1,5 @@
+import { ContentSettings } from './ContentSettings.types';
+
 /**
  * 结构化数据类型枚举
  */
@@ -32,6 +34,8 @@ export interface Workflow {
   updatedAt: number;
   /** 是否为默认工作流 */
   isDefault?: boolean;
+  /** 内容设置配置 */
+  contentSettings?: ContentSettings;
 }
 
 /**
@@ -45,6 +49,7 @@ export interface CreateWorkflowInput {
   structuredDataTypes: StructuredDataType[];
   status?: WorkflowStatus;
   isDefault?: boolean;
+  contentSettings?: ContentSettings;
 }
 
 /**
@@ -58,6 +63,7 @@ export interface UpdateWorkflowInput {
   structuredDataTypes?: StructuredDataType[];
   status?: WorkflowStatus;
   isDefault?: boolean;
+  contentSettings?: ContentSettings;
 }
 
 /**
