@@ -44,6 +44,8 @@ export {
   CategoryTag,
   TagGroup
 } from './Tag';
+export { default as ProgressBar } from './ProgressBar';
+export { default as RealTimeStats } from './RealTimeStats';
 
 // 类型导出
 export type {
