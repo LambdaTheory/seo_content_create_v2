@@ -230,4 +230,15 @@ export type {
   QualityAssessment,
   ThresholdAdjustmentHistory,
   ThresholdStats
-} from './GameMatchingThresholdService'; 
+} from './GameMatchingThresholdService';
+
+// 网页抓取服务
+export { WebScrapingService } from './WebScrapingService';
+export type {
+  ScrapingConfig,
+  ProxyConfig,
+  ScrapingRequest,
+  ScrapingResponse,
+  ScrapingError,
+  ScrapingStats
+} from './WebScrapingService'; 
