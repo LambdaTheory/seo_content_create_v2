@@ -241,4 +241,20 @@ export type {
   ScrapingResponse,
   ScrapingError,
   ScrapingStats
-} from './WebScrapingService'; 
+} from './WebScrapingService';
+
+// 网站内容解析服务
+export { WebContentParsingService } from './WebContentParsingService';
+export type {
+  ParseConfig,
+  ParsedGameContent,
+  ParseResult,
+  WebsiteParser,
+  ParsingStats
+} from './WebContentParsingService';
+
+// 网站解析器
+export { CoolMathGamesParser } from './parsers/CoolMathGamesParser';
+export { GameDistributionParser } from './parsers/GameDistributionParser';
+export { TwoPlayerGamesParser } from './parsers/TwoPlayerGamesParser';
+export { GenericHtmlParser } from './parsers/GenericHtmlParser'; 
