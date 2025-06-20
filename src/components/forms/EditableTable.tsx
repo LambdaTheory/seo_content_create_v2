@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
 import { GameData } from '@/types/GameData.types';
 import { cn } from '@/utils/classNames';
+import { DataSortFilter, SortConfig, FilterConfig } from './DataSortFilter';
 
 /**
  * 编辑器类型
@@ -71,6 +72,8 @@ export interface EditableTableProps {
     title: string;
     width?: number;
     align?: 'left' | 'center' | 'right';
+    sortable?: boolean;
+    filterable?: boolean;
     render?: (value: any, record: any, index: number) => React.ReactNode;
   }>;
   /** 编辑规则 */
@@ -85,6 +88,12 @@ export interface EditableTableProps {
   onRowAdd?: (record: GameData) => void;
   /** 是否显示行号 */
   showRowNumber?: boolean;
+  /** 是否启用排序筛选 */
+  enableSortFilter?: boolean;
+  /** 初始排序配置 */
+  initialSortConfig?: SortConfig;
+  /** 初始筛选配置 */
+  initialFilterConfig?: FilterConfig;
   /** 自定义样式类名 */
   className?: string;
 }
@@ -115,6 +124,9 @@ export const EditableTable: React.FC<EditableTableProps> = ({
   onRowDelete,
   onRowAdd,
   showRowNumber = true,
+  enableSortFilter = false,
+  initialSortConfig,
+  initialFilterConfig,
   className = ''
 }) => {
   // 编辑状态管理
@@ -127,6 +139,11 @@ export const EditableTable: React.FC<EditableTableProps> = ({
 
   // 表格引用
   const tableRef = useRef<HTMLDivElement>(null);
+
+  // 排序筛选后的数据
+  const [filteredData, setFilteredData] = useState<GameData[]>(data);
+  const [sortConfig, setSortConfig] = useState<SortConfig | undefined>(initialSortConfig);
+  const [filterConfig, setFilterConfig] = useState<FilterConfig | undefined>(initialFilterConfig);
 
   // 开始编辑行
   const startEdit = useCallback((rowIndex: number) => {
@@ -386,6 +403,18 @@ export const EditableTable: React.FC<EditableTableProps> = ({
     }
   }, [updateFieldValue, editState.validationErrors]);
 
+  // 处理排序筛选数据变化
+  const handleSortFilterChange = useCallback((newData: GameData[], sortConfig: SortConfig, filterConfig: FilterConfig) => {
+    setFilteredData(newData);
+    setSortConfig(sortConfig);
+    setFilterConfig(filterConfig);
+  }, []);
+
+  // 更新原始数据时同步更新筛选数据
+  React.useEffect(() => {
+    setFilteredData(data);
+  }, [data]);
+
   // 构建表格列
   const tableColumns = useMemo(() => {
     const cols = [];
@@ -525,6 +554,17 @@ export const EditableTable: React.FC<EditableTableProps> = ({
 
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* 排序筛选工具栏 */}
+      {enableSortFilter && (
+        <DataSortFilter
+          data={data}
+          columns={columns}
+          sortConfig={sortConfig}
+          filterConfig={filterConfig}
+          onDataChange={handleSortFilterChange}
+        />
+      )}
+
       {/* 工具栏 */}
       {editRule.allowAdd && (
         <div className="flex justify-end">
@@ -539,17 +579,24 @@ export const EditableTable: React.FC<EditableTableProps> = ({
 
       {/* 表格 */}
       <div ref={tableRef} className="overflow-auto">
-                <Table
-           columns={tableColumns}
-           dataSource={data}
-           hoverable
-           bordered
-         />
+        <Table
+          columns={tableColumns}
+          dataSource={enableSortFilter ? filteredData : data}
+          hoverable
+          bordered
+        />
       </div>
 
       {/* 统计信息 */}
       <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>共 {data.length} 条记录</span>
+        <span>
+          共 {enableSortFilter ? filteredData.length : data.length} 条记录
+          {enableSortFilter && filteredData.length !== data.length && (
+            <span className="text-blue-600 ml-1">
+              (已筛选，总计 {data.length} 条)
+            </span>
+          )}
+        </span>
         {editState.editingRows.size > 0 && (
           <span>正在编辑 {editState.editingRows.size} 行</span>
         )}
