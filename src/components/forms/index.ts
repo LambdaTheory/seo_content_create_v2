@@ -10,4 +10,6 @@ export { BatchDataEditor } from './BatchDataEditor';
 export type { BatchDataEditorProps } from './BatchDataEditor';
 
 export { DataPreview } from './DataPreview';
-export { WorkflowForm } from './WorkflowForm'; 
+export { WorkflowForm } from './WorkflowForm';
+export { EditableTable } from './EditableTable';
+export type { EditableTableProps } from './EditableTable'; 
