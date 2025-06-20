@@ -438,4 +438,65 @@ export interface MatchingWeights {
   url: number;
 }
 
+/**
+ * 竞品网站配置（用于Sitemap抓取）
+ */
+export interface CompetitorWebsiteConfig {
+  /** 网站ID */
+  id: string;
+  /** 网站名称 */
+  name: string;
+  /** 网站基础URL */
+  baseUrl: string;
+  /** Sitemap URL */
+  sitemapUrl: string;
+  /** 抓取配置 */
+  scraping?: {
+    /** URL匹配模式 */
+    urlPattern?: string;
+    /** 最大页面数 */
+    maxPages?: number;
+    /** 请求间隔（毫秒） */
+    requestDelay?: number;
+  };
+  /** 是否启用 */
+  enabled: boolean;
+}
+
+/**
+ * Sitemap数据
+ */
+export interface SitemapData {
+  /** 网站ID */
+  websiteId: string;
+  /** 网站名称 */
+  websiteName: string;
+  /** Sitemap URL */
+  sitemapUrl: string;
+  /** 抓取到的URL列表 */
+  urls: string[];
+  /** 最后抓取时间 */
+  lastFetched: Date;
+  /** 抓取状态 */
+  status: ScrapingStatus;
+  /** 抓取耗时（毫秒） */
+  fetchDuration: number;
+  /** 总URL数量 */
+  totalUrls: number;
+  /** 错误信息 */
+  errorMessage?: string;
+}
+
+/**
+ * 抓取状态枚举
+ */
+export enum ScrapingStatus {
+  PENDING = 'pending',
+  FETCHING = 'fetching',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+  TIMEOUT = 'timeout',
+  CANCELLED = 'cancelled'
+}
+
 export default CompetitorWebsite; 
