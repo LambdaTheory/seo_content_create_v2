@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 /**
  * 侧边栏组件属性
@@ -30,6 +30,28 @@ export interface SidebarProps {
   header?: React.ReactNode;
   /** 底部内容 */
   footer?: React.ReactNode;
+  /** 移动端是否打开 */
+  mobileOpen?: boolean;
+  /** 移动端关闭回调 */
+  onMobileClose?: () => void;
+  /** 自定义菜单项 */
+  menuItems?: SidebarMenuItem[];
+  /** 自定义菜单分组 */
+  menuGroups?: SidebarMenuGroup[];
+  /** 当前激活的菜单项ID */
+  activeMenuItem?: string;
+  /** 菜单项点击回调 */
+  onMenuItemClick?: (item: SidebarMenuItem) => void;
+  /** 是否显示搜索框 */
+  showSearch?: boolean;
+  /** 搜索框占位符 */
+  searchPlaceholder?: string;
+  /** 搜索回调 */
+  onSearch?: (query: string) => void;
+  /** 切换按钮位置 */
+  togglePosition?: 'top' | 'bottom';
+  /** 其他HTML属性 */
+  [key: string]: any;
 }
 
 /**
@@ -39,9 +61,11 @@ export interface SidebarMenuItem {
   /** 菜单项ID */
   id: string;
   /** 菜单项标题 */
-  title: string;
+  title?: string;
+  /** 菜单项标签（显示文本） */
+  label: string;
   /** 菜单项图标 */
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   /** 菜单项链接 */
   href?: string;
   /** 点击回调 */
@@ -53,7 +77,7 @@ export interface SidebarMenuItem {
   /** 子菜单 */
   children?: SidebarMenuItem[];
   /** 徽章文本 */
-  badge?: string;
+  badge?: string | number;
   /** 徽章类型 */
   badgeType?: 'primary' | 'success' | 'warning' | 'error' | 'info';
   /** 是否展开（有子菜单时） */
@@ -219,6 +243,13 @@ export const SIDEBAR_CONSTANTS = {
   PADDING: 16,
   ANIMATION_DURATION: 300,
   TOOLTIP_DELAY: 500,
+  WIDTH: {
+    expanded: 240,
+    collapsed: 60,
+  },
+  MENU_ITEM_HEIGHT: 48,
+  SEARCH_HEIGHT: 40,
+  TOGGLE_HEIGHT: 32,
 } as const;
 
 /**
@@ -229,4 +260,90 @@ export type SidebarTheme = 'light' | 'dark' | 'auto';
 /**
  * 侧边栏变体
  */
-export type SidebarVariant = 'default' | 'minimal' | 'compact' | 'floating'; 
+export type SidebarVariant = 'default' | 'minimal' | 'compact' | 'floating';
+
+/**
+ * 侧边栏菜单分组类型
+ */
+export interface SidebarMenuGroup {
+  id: string;
+  label?: string;
+  items: SidebarMenuItem[];
+  collapsible?: boolean;
+  defaultCollapsed?: boolean;
+}
+
+/**
+ * 侧边栏菜单项提示信息类型
+ */
+export interface SidebarTooltip {
+  content: string;
+  placement?: 'right' | 'left';
+  delay?: number;
+}
+
+/**
+ * 默认菜单项配置
+ */
+export const DEFAULT_MENU_ITEMS: SidebarMenuItem[] = [
+  {
+    id: 'dashboard',
+    label: '仪表板',
+    icon: '📊',
+    href: '/',
+  },
+  {
+    id: 'workflow',
+    label: '工作流管理',
+    icon: '⚙️',
+    href: '/workflow',
+  },
+  {
+    id: 'upload',
+    label: '数据上传',
+    icon: '📁',
+    href: '/upload',
+  },
+  {
+    id: 'generate',
+    label: '内容生成',
+    icon: '⚡',
+    href: '/generate',
+  },
+  {
+    id: 'results',
+    label: '结果查看',
+    icon: '📋',
+    href: '/results',
+  },
+  {
+    id: 'analytics',
+    label: '数据分析',
+    icon: '📈',
+    href: '/analytics',
+  },
+];
+
+/**
+ * 默认底部菜单项配置
+ */
+export const DEFAULT_FOOTER_MENU_ITEMS: SidebarMenuItem[] = [
+  {
+    id: 'settings',
+    label: '设置',
+    icon: '⚙️',
+    href: '/settings',
+  },
+  {
+    id: 'help',
+    label: '帮助',
+    icon: '❓',
+    href: '/help',
+  },
+  {
+    id: 'docs',
+    label: '文档',
+    icon: '📚',
+    href: '/docs',
+  },
+]; 

@@ -50,7 +50,10 @@ interface SidebarProps {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   onItemClick?: (item: SidebarMenuItem, e: React.MouseEvent) => void;
+  onToggle?: () => void;
   onToggleCollapse?: () => void;
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
   header?: {
     title?: string;
     subtitle?: string;
@@ -386,7 +389,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   searchValue,
   onSearchChange,
   onItemClick,
+  onToggle,
   onToggleCollapse,
+  mobileOpen = false,
+  onMobileClose,
   header,
   className,
   style,
@@ -394,18 +400,68 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const sidebarWidth = collapsed ? SIDEBAR_CONSTANTS.COLLAPSED_WIDTH : SIDEBAR_CONSTANTS.DEFAULT_WIDTH;
   
+  // 处理移动端遮罩层点击
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onMobileClose?.();
+  };
+
+  // 处理键盘导航 (ESC键关闭移动端侧边栏)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileOpen) {
+        onMobileClose?.();
+      }
+    };
+
+    if (mobileOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      // 锁定body滚动
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [mobileOpen, onMobileClose]);
+  
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-30 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out flex flex-col",
-        className
+    <>
+      {/* 移动端遮罩层 */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
       )}
-      style={{
-        width: sidebarWidth,
-        ...style
-      }}
-      {...props}
-    >
+      
+      <aside
+        className={cn(
+          // 基础样式
+          "fixed left-0 top-0 z-50 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col",
+          // 过渡动画
+          "transition-all duration-300 ease-in-out",
+          // 移动端特殊处理
+          "lg:z-30", // 桌面端降低z-index
+          // 响应式显示控制
+          {
+            "translate-x-0": mobileOpen || window?.innerWidth >= 1024, // 移动端根据mobileOpen状态，桌面端始终显示
+            "-translate-x-full lg:translate-x-0": !mobileOpen, // 移动端隐藏，桌面端显示
+          },
+          className
+        )}
+        style={{
+          width: sidebarWidth,
+          ...style
+        }}
+        // 无障碍属性
+        role="navigation"
+        aria-label="主导航"
+        aria-hidden={!mobileOpen && window?.innerWidth < 1024 ? "true" : "false"}
+        {...props}
+      >
       {/* 头部 */}
       {header && (
         <SidebarHeader
@@ -456,10 +512,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
       
       {/* 折叠切换按钮 */}
-      {onToggleCollapse && (
+      {(onToggle || onToggleCollapse) && (
         <div className="p-2 border-t border-gray-200 dark:border-gray-700">
           <button
-            onClick={onToggleCollapse}
+            onClick={() => {
+              onToggle?.();
+              onToggleCollapse?.();
+            }}
             className="w-full flex items-center justify-center p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors duration-200"
             aria-label={collapsed ? "展开侧边栏" : "收起侧边栏"}
           >
@@ -478,6 +537,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
     </aside>
+    </>
   );
 };
 

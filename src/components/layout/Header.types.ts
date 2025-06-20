@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 /**
  * 头部导航组件属性
@@ -26,6 +26,30 @@ export interface HeaderProps {
   sidebarCollapsed?: boolean;
   /** 侧边栏切换回调 */
   onSidebarToggle?: () => void;
+  /** 子组件 */
+  children?: ReactNode;
+  /** 当前主题 */
+  theme?: 'light' | 'dark';
+  /** 主题切换回调 */
+  onThemeToggle?: () => void;
+  /** 用户信息 */
+  user?: {
+    name: string;
+    avatar?: string;
+    email?: string;
+  };
+  /** 工作流列表 */
+  workflows?: Array<{
+    id: string;
+    name: string;
+    description?: string;
+  }>;
+  /** 当前选中的工作流ID */
+  currentWorkflowId?: string;
+  /** 工作流选择回调 */
+  onWorkflowChange?: (workflowId: string) => void;
+  /** 其他HTML属性 */
+  [key: string]: any;
 }
 
 /**
@@ -243,6 +267,33 @@ export interface BreadcrumbItem {
 }
 
 /**
+ * Header导航菜单项类型
+ */
+export interface HeaderMenuItem {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  onClick?: () => void;
+  href?: string;
+  external?: boolean;
+  badge?: string | number;
+  disabled?: boolean;
+}
+
+/**
+ * Header用户菜单项类型
+ */
+export interface HeaderUserMenuItem {
+  id: string;
+  label: string;
+  icon?: ReactNode;
+  onClick?: () => void;
+  href?: string;
+  divider?: boolean;
+  danger?: boolean;
+}
+
+/**
  * 头部常量
  */
 export const HEADER_CONSTANTS = {
@@ -251,4 +302,8 @@ export const HEADER_CONSTANTS = {
   SEARCH_WIDTH: 320,
   USER_ACTIONS_WIDTH: 200,
   Z_INDEX: 50,
+  HEIGHT: 64,
+  SEARCH_MAX_WIDTH: 400,
+  USER_MENU_WIDTH: 240,
+  NOTIFICATION_MAX_COUNT: 99,
 } as const; 

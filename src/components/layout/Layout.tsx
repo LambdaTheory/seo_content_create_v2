@@ -11,22 +11,10 @@ import {
   LAYOUT_BREAKPOINTS
 } from './Layout.types';
 import { cn } from '@/utils/classNames';
-
-/**
- * 布局上下文
- */
-const LayoutContext = createContext<LayoutContextValue | null>(null);
-
-/**
- * 使用布局上下文Hook
- */
-export const useLayout = (): LayoutContextValue => {
-  const context = useContext(LayoutContext);
-  if (!context) {
-    throw new Error('useLayout must be used within a LayoutProvider');
-  }
-  return context;
-};
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
+import { Footer } from './Footer';
+import { LayoutProvider, useLayout } from './useLayout';
 
 /**
  * 获取当前断点
@@ -229,231 +217,238 @@ export const LayoutGrid: React.FC<LayoutGridProps> = ({
 };
 
 /**
- * 主布局组件
+ * 主布局组件，提供应用的整体布局结构
+ * 支持响应式设计：
+ * - 移动端：侧边栏抽屉式
+ * - 平板端：侧边栏收起模式
+ * - 桌面端：完整布局
  */
-export const Layout: React.FC<LayoutProps> = ({
+const LayoutComponent: React.FC<LayoutProps> = ({
   children,
-  showSidebar = true,
-  showHeader = true,
-  showFooter = true,
   className,
-  sidebarCollapsed: externalSidebarCollapsed,
+  showHeader = true,
+  showSidebar = true,
+  showFooter = true,
+  sidebarCollapsed: controlledCollapsed,
   onSidebarToggle,
+  theme: controlledTheme,
+  onThemeChange,
+  ...props
 }) => {
-  // 内部状态管理
-  const [internalSidebarCollapsed, setInternalSidebarCollapsed] = useState(false);
-  const [breakpoint, setBreakpoint] = useState<LayoutBreakpoint>('lg');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
-  // 使用外部控制的侧边栏状态，否则使用内部状态
-  const sidebarCollapsed = externalSidebarCollapsed !== undefined 
-    ? externalSidebarCollapsed 
-    : internalSidebarCollapsed;
-
-  // 响应式断点检测
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const currentBreakpoint = getBreakpoint(width);
-      setBreakpoint(currentBreakpoint);
-      
-      // 在移动端自动收起侧边栏
-      if (currentBreakpoint === 'sm' || currentBreakpoint === 'md') {
-        if (externalSidebarCollapsed === undefined) {
-          setInternalSidebarCollapsed(true);
-        }
-      }
-    };
-
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [externalSidebarCollapsed]);
-
-  // 主题初始化
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
-    }
-  }, []);
-
-  // 主题应用
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  // 侧边栏切换处理
-  const handleSidebarToggle = useCallback(() => {
-    if (onSidebarToggle) {
-      onSidebarToggle(!sidebarCollapsed);
-    } else {
-      setInternalSidebarCollapsed(prev => !prev);
-    }
-  }, [sidebarCollapsed, onSidebarToggle]);
-
-  // 主题切换处理
-  const handleThemeToggle = useCallback(() => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  }, []);
-
-  // 计算断点状态
-  const isMobile = breakpoint === 'sm';
-  const isTablet = breakpoint === 'md';
-  const isDesktop = !isMobile && !isTablet;
-
-  // 布局上下文值
-  const layoutContextValue: LayoutContextValue = {
-    breakpoint,
+  const {
+    theme,
+    toggleTheme,
+    sidebarCollapsed,
+    toggleSidebar,
+    sidebarMobileOpen,
+    setSidebarMobileOpen,
     isMobile,
     isTablet,
-    isDesktop,
-    sidebarCollapsed,
-    toggleSidebar: handleSidebarToggle,
-    theme,
-    toggleTheme: handleThemeToggle,
+    isDesktop
+  } = useLayout();
+
+  // 使用受控或非受控模式
+  const actualTheme = controlledTheme ?? theme;
+  const actualCollapsed = controlledCollapsed ?? sidebarCollapsed;
+
+  const handleThemeChange = () => {
+    if (onThemeChange) {
+      onThemeChange(actualTheme === 'light' ? 'dark' : 'light');
+    } else {
+      toggleTheme();
+    }
   };
 
+  const handleSidebarToggle = () => {
+    if (onSidebarToggle) {
+      onSidebarToggle(!actualCollapsed);
+    } else {
+      toggleSidebar();
+    }
+  };
+
+  // 移动端专用的侧边栏切换
+  const handleMobileSidebarToggle = () => {
+    setSidebarMobileOpen(!sidebarMobileOpen);
+  };
+
+  // 移动端侧边栏关闭
+  const handleMobileSidebarClose = () => {
+    setSidebarMobileOpen(false);
+  };
+
+  // 计算布局类名
+  const layoutClasses = cn(
+    'min-h-screen',
+    'flex flex-col',
+    'bg-gray-50 dark:bg-gray-900',
+    'transition-colors duration-200',
+    // 桌面端最大宽度限制
+    'max-w-[1920px] mx-auto',
+    className
+  );
+
+  // 计算主容器类名
+  const mainContainerClasses = cn(
+    'flex flex-1',
+    'relative',
+    // 移动端全宽，桌面端自适应
+    'w-full'
+  );
+
+  // 计算主内容区类名
+  const mainContentClasses = cn(
+    'flex-1',
+    'min-w-0', // 防止flex子元素溢出
+    'transition-all duration-200 ease-in-out',
+    {
+      // 桌面端侧边栏处理
+      'lg:ml-60': showSidebar && !actualCollapsed && isDesktop,
+      'lg:ml-15': showSidebar && actualCollapsed && isDesktop,
+      // 平板端侧边栏收起
+      'md:ml-15': showSidebar && isTablet,
+      // 移动端全宽
+      'ml-0': isMobile,
+    }
+  );
+
+  // 移动端遮罩层
+  const mobileOverlayClasses = cn(
+    'fixed inset-0',
+    'bg-black/50',
+    'z-40',
+    'lg:hidden',
+    'transition-opacity duration-200',
+    {
+      'opacity-100 pointer-events-auto': sidebarMobileOpen,
+      'opacity-0 pointer-events-none': !sidebarMobileOpen,
+    }
+  );
+
   return (
-    <LayoutContext.Provider value={layoutContextValue}>
-      <div 
-        className={cn(
-          'min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200',
-          className
-        )}
-      >
-        {/* 头部导航栏 */}
-        {showHeader && (
-          <header 
-            className={cn(
-              'fixed top-0 left-0 right-0 z-50',
-              'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
-              'transition-all duration-300 ease-in-out'
-            )}
-            style={{ height: `${LAYOUT_SIZES.HEADER_HEIGHT}px` }}
-          >
-            {/* 头部内容将在Header组件中实现 */}
-            <div className="h-full flex items-center justify-between px-6">
-              <div className="flex items-center space-x-4">
-                <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  SEO内容生成工具
-                </h1>
-              </div>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={handleThemeToggle}
-                  className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="切换主题"
-                >
-                  {theme === 'light' ? '🌙' : '☀️'}
-                </button>
-                {showSidebar && (
-                  <button
-                    onClick={handleSidebarToggle}
-                    className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 lg:hidden"
-                    aria-label="切换侧边栏"
-                  >
-                    ☰
-                  </button>
-                )}
-              </div>
-            </div>
-          </header>
-        )}
+    <div className={layoutClasses} data-theme={actualTheme} {...props}>
+      {/* Header */}
+      {showHeader && (
+        <Header
+          theme={actualTheme}
+          onThemeToggle={handleThemeChange}
+          onSidebarToggle={isMobile ? handleMobileSidebarToggle : handleSidebarToggle}
+          sidebarCollapsed={actualCollapsed}
+          className="relative z-30"
+        />
+      )}
 
-        {/* 侧边栏 */}
+      {/* 主容器 */}
+      <div className={mainContainerClasses}>
+        {/* 移动端遮罩层 */}
         {showSidebar && (
-          <aside
-            className={cn(
-              'fixed top-0 left-0 bottom-0 z-40',
-              'bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700',
-              'transition-all duration-300 ease-in-out',
-              sidebarCollapsed ? 'w-16' : 'w-60'
-            )}
-            style={{ 
-              top: showHeader ? `${LAYOUT_SIZES.HEADER_HEIGHT}px` : '0',
-              bottom: showFooter ? `${LAYOUT_SIZES.FOOTER_HEIGHT}px` : '0'
-            }}
-          >
-            {/* 侧边栏内容将在Sidebar组件中实现 */}
-            <div className="h-full p-4">
-              <nav className="space-y-2">
-                <div className={cn(
-                  'flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700',
-                  sidebarCollapsed && 'justify-center'
-                )}>
-                  <span>📊</span>
-                  {!sidebarCollapsed && <span className="text-gray-700 dark:text-gray-300">工作流</span>}
-                </div>
-                <div className={cn(
-                  'flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700',
-                  sidebarCollapsed && 'justify-center'
-                )}>
-                  <span>📁</span>
-                  {!sidebarCollapsed && <span className="text-gray-700 dark:text-gray-300">数据上传</span>}
-                </div>
-                <div className={cn(
-                  'flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700',
-                  sidebarCollapsed && 'justify-center'
-                )}>
-                  <span>⚡</span>
-                  {!sidebarCollapsed && <span className="text-gray-700 dark:text-gray-300">内容生成</span>}
-                </div>
-                <div className={cn(
-                  'flex items-center space-x-3 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700',
-                  sidebarCollapsed && 'justify-center'
-                )}>
-                  <span>📋</span>
-                  {!sidebarCollapsed && <span className="text-gray-700 dark:text-gray-300">结果查看</span>}
-                </div>
-              </nav>
-            </div>
-          </aside>
+          <div 
+            className={mobileOverlayClasses}
+            onClick={handleMobileSidebarClose}
+            aria-hidden="true"
+          />
         )}
 
-        {/* 主内容区域 */}
-        <ContentArea
-          hasSidebar={showSidebar}
-          hasHeader={showHeader}
-          hasFooter={showFooter}
-          sidebarCollapsed={sidebarCollapsed}
-        >
-          {children}
-        </ContentArea>
-
-        {/* 底部状态栏 */}
-        {showFooter && (
-          <footer
+        {/* Sidebar */}
+        {showSidebar && (
+          <Sidebar
+            collapsed={isMobile ? false : actualCollapsed}
+            onToggle={isMobile ? handleMobileSidebarClose : handleSidebarToggle}
             className={cn(
-              'fixed bottom-0 left-0 right-0 z-30',
-              'bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700',
-              'transition-all duration-300 ease-in-out'
+              // 桌面端固定定位
+              'lg:fixed lg:top-16 lg:left-0 lg:bottom-10 lg:z-20',
+              // 平板端固定定位但收起
+              'md:fixed md:top-16 md:left-0 md:bottom-10 md:z-20',
+              // 移动端抽屉式
+              'fixed top-16 left-0 bottom-10 z-50',
+              'transition-transform duration-200 ease-in-out',
+              {
+                // 移动端显示/隐藏
+                'translate-x-0': !isMobile || sidebarMobileOpen,
+                '-translate-x-full': isMobile && !sidebarMobileOpen,
+                // 平板端始终显示但收起
+                'lg:translate-x-0': isTablet || isDesktop,
+              }
             )}
-            style={{ 
-              height: `${LAYOUT_SIZES.FOOTER_HEIGHT}px`,
-              paddingLeft: showSidebar ? (sidebarCollapsed ? '64px' : '240px') : '0'
-            }}
-          >
-            {/* 底部状态栏内容将在Footer组件中实现 */}
-            <div className="h-full flex items-center justify-between px-6">
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  就绪
-                </span>
-              </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {breakpoint.toUpperCase()} - {window.innerWidth}px
-                </span>
-              </div>
-            </div>
-          </footer>
+            // 移动端特殊处理
+            mobileOpen={sidebarMobileOpen}
+            onMobileClose={handleMobileSidebarClose}
+          />
         )}
+
+        {/* 主内容区 */}
+        <main className={mainContentClasses}>
+          <div className={cn(
+            'min-h-full',
+            'flex flex-col',
+            // 内容区内边距
+            'p-4 sm:p-6 lg:p-8',
+            // 顶部边距（考虑固定头部）
+            'pt-4 sm:pt-6 lg:pt-8',
+            // 底部边距（考虑固定底部）
+            'pb-12 sm:pb-16 lg:pb-20'
+          )}>
+            {children}
+          </div>
+        </main>
       </div>
-    </LayoutContext.Provider>
+
+      {/* Footer */}
+      {showFooter && (
+        <Footer 
+          className={cn(
+            'relative z-30',
+            // 桌面端左边距适应侧边栏
+            {
+              'lg:ml-60': showSidebar && !actualCollapsed && isDesktop,
+              'lg:ml-15': showSidebar && actualCollapsed && isDesktop,
+              'md:ml-15': showSidebar && isTablet,
+              'ml-0': isMobile,
+            }
+          )}
+          collapsed={actualCollapsed}
+        />
+      )}
+
+      {/* 触摸友好的悬浮按钮区域（移动端） */}
+      {isMobile && showSidebar && (
+        <button
+          onClick={handleMobileSidebarToggle}
+          className={cn(
+            'fixed bottom-20 right-4',
+            'w-14 h-14', // 触摸友好的尺寸
+            'bg-primary-600 text-white',
+            'rounded-full shadow-lg',
+            'flex items-center justify-center',
+            'z-40',
+            'transition-all duration-200',
+            'hover:bg-primary-700',
+            'active:scale-95',
+            // 只在移动端未打开侧边栏时显示
+            {
+              'opacity-100 translate-y-0': !sidebarMobileOpen,
+              'opacity-0 translate-y-2': sidebarMobileOpen,
+            }
+          )}
+          aria-label="打开侧边栏"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      )}
+    </div>
+  );
+};
+
+/**
+ * 布局组件包装器，提供Layout Context
+ */
+export const Layout: React.FC<LayoutProps> = (props) => {
+  return (
+    <LayoutProvider>
+      <LayoutComponent {...props} />
+    </LayoutProvider>
   );
 };
 
