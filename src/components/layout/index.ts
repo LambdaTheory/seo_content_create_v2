@@ -7,6 +7,15 @@ export {
   useLayout
 } from './Layout';
 
+export {
+  Header,
+  Logo,
+  WorkflowSelector,
+  UserActions,
+  SearchBox,
+  Breadcrumb
+} from './Header';
+
 export type {
   LayoutProps,
   LayoutContainerProps,
@@ -18,7 +27,23 @@ export type {
   LayoutConfig
 } from './Layout.types';
 
+export type {
+  HeaderProps,
+  LogoProps,
+  WorkflowSelectorProps,
+  UserActionsProps,
+  WorkflowOption,
+  SearchBoxProps,
+  BreadcrumbProps,
+  NavMenuItem,
+  UserInfo
+} from './Header.types';
+
 export {
   LAYOUT_SIZES,
   LAYOUT_BREAKPOINTS
-} from './Layout.types'; 
+} from './Layout.types';
+
+export {
+  HEADER_CONSTANTS
+} from './Header.types'; 
