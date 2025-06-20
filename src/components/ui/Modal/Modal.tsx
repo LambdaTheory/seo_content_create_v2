@@ -9,7 +9,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
  */
 const modalVariants = createVariants({
   base: [
-    'fixed inset-0 z-50 flex items-center justify-center p-4',
+    'fixed inset-0 flex items-center justify-center p-4',
     'overflow-x-hidden overflow-y-auto',
   ].join(' '),
   variants: {
@@ -64,7 +64,7 @@ const ModalOverlay = forwardRef<HTMLDivElement, ModalOverlayProps>(
       <div
         ref={ref}
         className={cn(
-          'fixed inset-0 bg-black/50 transition-opacity duration-300',
+          'fixed inset-0 bg-black/50 transition-opacity duration-300 cursor-pointer',
           animation === 'fade' && 'opacity-0 data-[state=open]:opacity-100',
           className
         )}
@@ -245,8 +245,6 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     const modalRef = useRef<HTMLDivElement>(null);
     const overlayRef = useRef<HTMLDivElement>(null);
     const previousActiveElement = useRef<HTMLElement | null>(null);
-    const firstFocusableElement = useRef<HTMLElement | null>(null);
-    const lastFocusableElement = useRef<HTMLElement | null>(null);
 
     // 获取可聚焦元素
     const getFocusableElements = useCallback((container: HTMLElement) => {
@@ -299,7 +297,15 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     }, [trapFocus, getFocusableElements]);
 
     // 处理遮罩层点击
-    const handleOverlayClick = useCallback((event: React.MouseEvent) => {
+    const handleOverlayClick = useCallback(() => {
+      if (closeOnOverlayClick) {
+        onClose();
+      }
+    }, [closeOnOverlayClick, onClose]);
+
+    // 处理模态框容器点击
+    const handleContainerClick = useCallback((event: React.MouseEvent) => {
+      // 只有点击容器本身（不是子元素）时才关闭
       if (closeOnOverlayClick && event.target === event.currentTarget) {
         onClose();
       }
@@ -364,74 +370,79 @@ export const Modal = forwardRef<HTMLDivElement, ModalProps>(
     if (!open) return null;
 
     const modalContent = (
-      <div
-        className={modalVariants({
-          size,
-          centered: centered ? 'true' : 'false',
-          className,
-        })}
-        style={{ zIndex }}
-        onClick={handleOverlayClick}
-      >
+      <>
         {/* 遮罩层 */}
-                 <ModalOverlay
-           ref={overlayRef}
-           visible={open}
-           animation={animation === 'fade' ? 'fade' : 'none'}
-           zIndex={zIndex - 1}
-           className={overlayClassName}
-         />
-
-        {/* 模态框内容 */}
+        <ModalOverlay
+          ref={overlayRef}
+          visible={open}
+          animation={animation === 'fade' ? 'fade' : 'none'}
+          zIndex={zIndex}
+          className={overlayClassName}
+          onClick={handleOverlayClick}
+        />
+        
+        {/* 模态框容器 */}
         <div
-          ref={ref || modalRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label={ariaLabel}
-          aria-labelledby={ariaLabelledby}
-          aria-describedby={ariaDescribedby}
-          tabIndex={-1}
-          className={modalContentVariants({
-            animation,
-            className: cn(
-              maxHeight && `max-h-[${maxHeight}]`,
-              contentClassName
-            ),
+          className={modalVariants({
+            size,
+            centered: centered ? 'true' : 'false',
+            className,
           })}
-          data-state={open ? 'open' : 'closed'}
-          style={{ maxHeight }}
+          style={{ zIndex: zIndex + 10 }}
+          onClick={handleContainerClick}
         >
-          {/* 头部 */}
-          {(showHeader || header) && (
-            <>
-              {header || (
-                <ModalHeader
-                  title={title}
-                  showCloseButton={showCloseButton}
-                  onClose={onClose}
-                  className={headerClassName}
-                />
-              )}
-            </>
-          )}
+          {/* 模态框内容 */}
+          <div
+            ref={ref || modalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={ariaLabel}
+            aria-labelledby={ariaLabelledby}
+            aria-describedby={ariaDescribedby}
+            tabIndex={-1}
+            className={modalContentVariants({
+              animation,
+              className: cn(
+                maxHeight && `max-h-[${maxHeight}]`,
+                contentClassName
+              ),
+            })}
+            data-state={open ? 'open' : 'closed'}
+            style={{ maxHeight }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 头部 */}
+            {(showHeader || header) && (
+              <>
+                {header || (
+                  <ModalHeader
+                    title={title}
+                    showCloseButton={showCloseButton}
+                    onClose={onClose}
+                    className={headerClassName}
+                  />
+                )}
+              </>
+            )}
 
-          {/* 主体内容 */}
-          <ModalBody scrollable={scrollable}>
-            {children}
-          </ModalBody>
+            {/* 主体内容 */}
+            <ModalBody scrollable={scrollable}>
+              {children}
+            </ModalBody>
 
-          {/* 底部 */}
-          {(showFooter || footer) && (
-            <>
-              {footer || (
-                <ModalFooter className={footerClassName}>
-                  <div></div>
-                </ModalFooter>
-              )}
-            </>
-          )}
+            {/* 底部 */}
+            {(showFooter || footer) && (
+              <>
+                {footer || (
+                  <ModalFooter className={footerClassName}>
+                    <div></div>
+                  </ModalFooter>
+                )}
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </>
     );
 
     // 使用Portal渲染到body

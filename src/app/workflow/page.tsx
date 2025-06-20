@@ -272,8 +272,8 @@ export default function WorkflowPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* 搜索和筛选栏 */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 min-w-0">
               <Input
                 type="text"
                 placeholder="搜索工作流名称或描述..."
@@ -283,11 +283,11 @@ export default function WorkflowPage() {
               />
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-3 lg:flex-shrink-0">
+            <div className="flex flex-col sm:flex-row gap-3 sm:w-auto">
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[120px]"
+                className="px-4 py-2 h-11 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[140px]"
               >
                 <option value="all">全部状态</option>
                 <option value="active">激活</option>
@@ -302,7 +302,7 @@ export default function WorkflowPage() {
                   setSortBy(field as any);
                   setSortOrder(order as any);
                 }}
-                className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[120px]"
+                className="px-4 py-2 h-11 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[140px]"
               >
                 <option value="updatedAt-desc">最近更新</option>
                 <option value="createdAt-desc">最近创建</option>
@@ -405,50 +405,58 @@ export default function WorkflowPage() {
                   </div>
 
                   {/* 操作按钮 */}
-                  <div className="flex gap-2 flex-wrap">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditingWorkflow(workflow);
-                        setShowEditForm(true);
-                      }}
-                      className="flex-1 min-w-0 border-2 font-medium"
-                    >
-                      编辑
-                    </Button>
-                    
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDuplicateWorkflow(workflow)}
-                      className="px-3 font-medium"
-                    >
-                      复制
-                    </Button>
-
-                    {!workflow.isDefault && (
+                  <div className="space-y-2">
+                    {/* 第一行：编辑和复制 */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingWorkflow(workflow);
+                          setShowEditForm(true);
+                        }}
+                        className="flex-1 border-2 font-medium text-sm"
+                      >
+                        编辑
+                      </Button>
+                      
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleSetDefault(workflow)}
-                        className="px-3 font-medium"
+                        onClick={() => handleDuplicateWorkflow(workflow)}
+                        className="flex-1 font-medium text-sm"
                       >
-                        设为默认
+                        复制
                       </Button>
-                    )}
+                    </div>
 
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => {
-                        setDeletingWorkflow(workflow);
-                        setShowDeleteConfirm(true);
-                      }}
-                      className="px-3 font-medium"
-                    >
-                      删除
-                    </Button>
+                    {/* 第二行：设为默认和删除 */}
+                    <div className="flex gap-2">
+                      {!workflow.isDefault ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSetDefault(workflow)}
+                          className="flex-1 font-medium text-sm"
+                        >
+                          设为默认
+                        </Button>
+                      ) : (
+                        <div className="flex-1"></div>
+                      )}
+
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => {
+                          setDeletingWorkflow(workflow);
+                          setShowDeleteConfirm(true);
+                        }}
+                        className="flex-1 font-medium text-sm"
+                      >
+                        删除
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -495,14 +503,14 @@ export default function WorkflowPage() {
         title="删除工作流"
         size="sm"
       >
-        <div className="p-6">
-          <p className="text-gray-700 mb-4">
+        <div className="space-y-4">
+          <p className="text-gray-700">
             确定要删除工作流 "<strong>{deletingWorkflow?.name}</strong>" 吗？
           </p>
-          <p className="text-sm text-gray-500 mb-6">
+          <p className="text-sm text-gray-500">
             此操作不可撤销，删除后数据将无法恢复。
           </p>
-          <div className="flex gap-3 justify-end">
+          <div className="flex gap-3 justify-end pt-4 border-t border-gray-200">
             <Button
               variant="outline"
               onClick={() => {
