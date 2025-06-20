@@ -15,13 +15,25 @@ export const KeywordDensityControl: React.FC<KeywordDensityControlProps> = ({
   label,
   description,
   value,
-  config,
+  config: propConfig,
   onChange,
   error,
   warning,
   className = '',
   showAdvanced = false
 }) => {
+  // 默认配置
+  const config = propConfig || {
+    minDensity: 0,
+    maxDensity: 8,
+    step: 0.1,
+    presets: [
+      { label: '保守 (1.5%)', value: { target: 1.5, min: 1.0, max: 2.0 } },
+      { label: '推荐 (2.5%)', value: { target: 2.5, min: 2.0, max: 3.0 } },
+      { label: '激进 (3.5%)', value: { target: 3.5, min: 3.0, max: 4.0 } }
+    ]
+  };
+
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['main']));
 
   // 定义密度等级

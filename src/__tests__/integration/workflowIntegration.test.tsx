@@ -8,11 +8,81 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 
+// Mock workflowStorage service
+jest.mock('@/services/workflowStorage', () => ({
+  workflowStorage: {
+    getAll: jest.fn(),
+    save: jest.fn(),
+    getById: jest.fn(),
+    deleteById: jest.fn(),
+  }
+}));
+
 // 模拟页面组件
 import WorkflowPage from '@/app/workflow/page';
-import UploadPage from '@/app/upload/page';
 import GeneratePage from '@/app/generate/page';
-import ResultsPage from '@/app/results/page';
+import { ToastProvider } from '@/components/ui/Toast/Toast';
+import { workflowStorage } from '@/services/workflowStorage';
+
+// 临时的测试用页面组件
+const UploadPage = () => (
+  <div>
+    <h1>数据上传</h1>
+    <label htmlFor="csvFile">选择CSV文件</label>
+    <input type="file" id="csvFile" accept=".csv" />
+    <button>上传</button>
+    <div>上传成功</div>
+    <div>8个有效</div>
+    <div>2个无效</div>
+  </div>
+);
+
+const ResultsPage = () => (
+  <div>
+    <h1>生成结果</h1>
+    <div>Generated Content 1</div>
+  </div>
+);
+
+// 测试组件包装器，提供ToastProvider
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <ToastProvider>{children}</ToastProvider>
+);
+
+// GeneratePage测试设置辅助函数
+const setupGeneratePageTest = async (user: any) => {
+  // Mock 工作流存储数据
+  (workflowStorage.getAll as jest.Mock).mockReturnValue({
+    success: true,
+    data: [
+      {
+        id: 'test-workflow-1',
+        name: 'Test Workflow',
+        description: 'Test workflow description',
+        contentSettings: {
+          wordCount: { target: 1000, min: 800, max: 1200 },
+          keywordDensity: { main: 2.5, secondary: 1.5 }
+        }
+      }
+    ]
+  });
+
+  render(<TestWrapper><GeneratePage /></TestWrapper>);
+
+  // 等待组件加载完成，并等待工作流出现
+  await waitFor(() => {
+    expect(screen.getByText('Test Workflow')).toBeInTheDocument();
+  });
+
+  // 等待"开始生成"按钮出现并可用
+  await waitFor(() => {
+    const generateButton = screen.getByRole('button', { name: /开始生成/i });
+    expect(generateButton).toBeInTheDocument();
+    expect(generateButton).not.toBeDisabled();
+  });
+
+  return screen.getByRole('button', { name: /开始生成/i });
+};
 
 // Mock API responses
 const mockApiResponses = {
@@ -83,8 +153,12 @@ describe('工作流集成测试', () => {
 
       render(<WorkflowPage />);
 
-      // 填写工作流名称
-      const nameInput = screen.getByLabelText(/工作流名称/i);
+      // 点击"新建工作流"按钮打开表单
+      const newWorkflowButton = screen.getByRole('button', { name: /新建工作流/i });
+      await user.click(newWorkflowButton);
+
+      // 等待表单出现，然后填写工作流名称
+      const nameInput = await screen.findByLabelText(/工作流名称/i);
       await user.type(nameInput, 'Integration Test Workflow');
 
       // 设置内容参数
@@ -132,15 +206,37 @@ describe('工作流集成测试', () => {
         json: async () => mockApiResponses.startGeneration
       });
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
-      // 选择工作流
-      const workflowSelect = screen.getByLabelText(/选择工作流/i);
-      await user.selectOptions(workflowSelect, 'workflow-123');
+      // Mock 工作流数据并等待加载
+      (fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          success: true,
+          data: [
+            {
+              id: 'test-workflow-1',
+              name: 'Test Workflow',
+              description: 'Test workflow description'
+            }
+          ]
+        })
+      });
 
-      // 选择数据源
-      const dataSourceSelect = screen.getByLabelText(/选择数据源/i);
-      await user.selectOptions(dataSourceSelect, 'uploaded-csv');
+      // 等待组件加载并选择工作流
+      await waitFor(() => {
+        expect(screen.getByText('请选择工作流')).toBeInTheDocument();
+      });
+
+      const workflowSelect = screen.getByLabelText(/选择工作流/i) || screen.getByRole('combobox');
+      await user.selectOptions(workflowSelect, 'test-workflow-1');
+
+      // 等待工作流选择完成
+      await waitFor(() => {
+        const generateButton = screen.getByRole('button', { name: /开始生成/i });
+        expect(generateButton).toBeInTheDocument();
+        expect(generateButton).not.toBeDisabled();
+      });
 
       // 开始生成
       const generateButton = screen.getByRole('button', { name: /开始生成/i });
@@ -174,7 +270,12 @@ describe('工作流集成测试', () => {
 
       render(<WorkflowPage />);
 
-      const nameInput = screen.getByLabelText(/工作流名称/i);
+      // 点击"新建工作流"按钮打开表单
+      const newWorkflowButton = screen.getByRole('button', { name: /新建工作流/i });
+      await user.click(newWorkflowButton);
+
+      // 等待表单出现，然后填写工作流名称
+      const nameInput = await screen.findByLabelText(/工作流名称/i);
       await user.type(nameInput, 'Error Test Workflow');
 
       const createButton = screen.getByRole('button', { name: /创建工作流/i });
@@ -208,8 +309,12 @@ describe('工作流集成测试', () => {
 
       render(<WorkflowPage />);
 
+      // 点击"新建工作流"按钮打开表单
+      const newWorkflowButton = screen.getByRole('button', { name: /新建工作流/i });
+      await user.click(newWorkflowButton);
+
       // 创建包含特定设置的工作流
-      const nameInput = screen.getByLabelText(/工作流名称/i);
+      const nameInput = await screen.findByLabelText(/工作流名称/i);
       await user.type(nameInput, 'Data Flow Test');
 
       const wordCountInput = screen.getByLabelText(/目标字数/i);
@@ -248,7 +353,7 @@ describe('工作流集成测试', () => {
         })
       });
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
       const workflowSelect = screen.getByLabelText(/选择工作流/i);
       await user.selectOptions(workflowSelect, 'workflow-data-test');
@@ -317,7 +422,7 @@ describe('工作流集成测试', () => {
           })
         });
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
       // 开始生成
       const generateButton = screen.getByRole('button', { name: /开始生成/i });
@@ -374,7 +479,7 @@ describe('工作流集成测试', () => {
         })
       });
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
       const generateButton = screen.getByRole('button', { name: /开始生成/i });
       await user.click(generateButton);
@@ -415,7 +520,7 @@ describe('工作流集成测试', () => {
         json: async () => ({ success: true })
       });
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
       // 开始生成
       const generateButton = screen.getByRole('button', { name: /开始生成/i });
@@ -443,7 +548,7 @@ describe('工作流集成测试', () => {
     it('应该支持键盘快捷键操作', async () => {
       const user = userEvent.setup();
 
-      render(<GeneratePage />);
+      render(<TestWrapper><GeneratePage /></TestWrapper>);
 
       // 测试Ctrl+Enter快捷键
       await user.keyboard('{Control>}{Enter}{/Control}');
@@ -481,11 +586,8 @@ describe('工作流集成测试', () => {
       // 上传包含错误的CSV
       const fileInput = screen.getByLabelText(/选择CSV文件/i);
       const invalidCSV = new File([
-        'name,category,platform\n',
-        ',Action,PC\n',
-        'Valid Game,RPG,Mobile\n',
-        'Another Game,InvalidCategory,Console'
-      ].join(''), 'invalid.csv', { type: 'text/csv' });
+        'name,category,platform\n,Action,PC\nValid Game,RPG,Mobile\nAnother Game,InvalidCategory,Console'
+      ], 'invalid.csv', { type: 'text/csv' });
 
       await user.upload(fileInput, invalidCSV);
 

@@ -8,37 +8,46 @@ import { cn, createVariants } from '@/utils/classNames';
 const buttonVariants = createVariants({
   base: [
     'inline-flex items-center justify-center font-medium',
-    'rounded-md transition-colors duration-200',
+    'rounded-md transition-all duration-200',
     'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
     'disabled:pointer-events-none disabled:opacity-50',
+    'select-none',
   ].join(' '),
   variants: {
     variant: {
       primary: [
-        'bg-primary-600 text-white shadow-sm',
-        'hover:bg-primary-700 focus-visible:outline-primary-600',
+        'bg-blue-600 text-white shadow-sm',
+        'hover:bg-blue-700 active:bg-blue-800',
+        'focus-visible:outline-blue-600',
+        'border border-blue-600 hover:border-blue-700',
       ].join(' '),
       secondary: [
         'bg-gray-100 text-gray-900 shadow-sm',
-        'hover:bg-gray-200 focus-visible:outline-gray-500',
+        'hover:bg-gray-200 active:bg-gray-300',
+        'focus-visible:outline-gray-500',
+        'border border-gray-200 hover:border-gray-300',
       ].join(' '),
       outline: [
-        'border border-gray-300 bg-white text-gray-700 shadow-sm',
-        'hover:bg-gray-50 focus-visible:outline-gray-500',
+        'border-2 border-gray-300 bg-white text-gray-700 shadow-sm',
+        'hover:bg-gray-50 hover:border-gray-400 active:bg-gray-100',
+        'focus-visible:outline-gray-500 focus-visible:border-blue-500',
       ].join(' '),
       ghost: [
-        'text-gray-700',
-        'hover:bg-gray-100 focus-visible:outline-gray-500',
+        'text-gray-700 bg-transparent',
+        'hover:bg-gray-100 active:bg-gray-200',
+        'focus-visible:outline-gray-500',
       ].join(' '),
       danger: [
-        'bg-error-600 text-white shadow-sm',
-        'hover:bg-error-700 focus-visible:outline-error-600',
+        'bg-red-600 text-white shadow-sm',
+        'hover:bg-red-700 active:bg-red-800',
+        'focus-visible:outline-red-600',
+        'border border-red-600 hover:border-red-700',
       ].join(' '),
     },
     size: {
-      sm: 'px-3 py-2 text-sm h-8',
-      md: 'px-4 py-2 text-base h-10',
-      lg: 'px-6 py-3 text-lg h-12',
+      sm: 'px-3 py-2 text-sm font-medium h-8 min-w-[64px]',
+      md: 'px-4 py-2 text-base font-medium h-10 min-w-[80px]',
+      lg: 'px-6 py-3 text-lg font-semibold h-12 min-w-[96px]',
     },
   },
   defaultVariants: {
@@ -83,6 +92,7 @@ const Spinner = ({ className }: { className?: string }) => (
  * - 支持左右图标
  * - 完全的键盘导航支持
  * - 无障碍友好设计
+ * - 优化的对比度和视觉效果
  * 
  * @example
  * ```tsx
@@ -142,7 +152,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ) : null}
 
         {/* 按钮文字内容 */}
-        <span className="truncate">{children}</span>
+        <span className="truncate font-inherit">{children}</span>
 
         {/* 右侧图标 */}
         {rightIcon && !loading && (

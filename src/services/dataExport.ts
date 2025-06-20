@@ -59,6 +59,8 @@ export interface ExportResult {
     exportedFields: number;
     fileSize: number;
   };
+  /** 下载URL */
+  downloadUrl?: string;
 }
 
 /**
@@ -362,6 +364,90 @@ export class DataExportService {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  /**
+   * 导出游戏数据
+   */
+  static async exportGameData(data: any[], options: ExportOptions): Promise<ExportResult> {
+    try {
+      const { format, filename = `export_${Date.now()}` } = options;
+      
+      switch (format) {
+        case 'json':
+          return this.exportAsJSON(data, filename);
+        case 'csv':
+          return this.exportAsCSV(data, filename);
+        case 'xlsx':
+          return this.exportAsExcel(data, filename);
+        default:
+          throw new Error(`Unsupported format: ${format}`);
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Export failed'
+      };
+    }
+  }
+
+  private static exportAsJSON(data: any[], filename: string): ExportResult {
+    const jsonData = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    return {
+      success: true,
+      filename: `${filename}.json`,
+      downloadUrl: url
+    };
+  }
+
+  private static exportAsCSV(data: any[], filename: string): ExportResult {
+    if (!data.length) {
+      throw new Error('No data to export');
+    }
+
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => 
+        headers.map(header => {
+          const value = row[header];
+          return typeof value === 'string' && value.includes(',') 
+            ? `"${value}"` 
+            : value;
+        }).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+
+    return {
+      success: true,
+      filename: `${filename}.csv`,
+      downloadUrl: url
+    };
+  }
+
+  private static exportAsExcel(data: any[], filename: string): ExportResult {
+    // 简化实现 - 实际项目中会使用xlsx库
+    console.warn('Excel export not fully implemented, falling back to CSV');
+    return this.exportAsCSV(data, filename);
+  }
+
+  /**
+   * 下载文件
+   */
+  static downloadFile(url: string, filename: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 }
 

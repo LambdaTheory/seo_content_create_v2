@@ -236,194 +236,224 @@ export default function WorkflowPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      {/* 页面标题和操作栏 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">工作流管理</h1>
-          <p className="text-gray-600 mt-1">创建和管理您的SEO内容生成工作流</p>
-        </div>
-        <Button
-          variant="primary"
-          onClick={() => setShowCreateForm(true)}
-          className="whitespace-nowrap"
-        >
-          新建工作流
-        </Button>
-      </div>
-
-      {/* 搜索和筛选栏 */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <Input
-            type="text"
-            placeholder="搜索工作流名称或描述..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">全部状态</option>
-            <option value="active">激活</option>
-            <option value="inactive">停用</option>
-            <option value="draft">草稿</option>
-          </select>
-
-          <select
-            value={`${sortBy}-${sortOrder}`}
-            onChange={(e) => {
-              const [field, order] = e.target.value.split('-');
-              setSortBy(field as any);
-              setSortOrder(order as any);
-            }}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="updatedAt-desc">最近更新</option>
-            <option value="createdAt-desc">最近创建</option>
-            <option value="name-asc">名称升序</option>
-            <option value="name-desc">名称降序</option>
-          </select>
-        </div>
-      </div>
-
-      {/* 工作流列表 */}
-      {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-3 text-gray-600">加载中...</span>
-        </div>
-      ) : filteredWorkflows.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-gray-400 text-lg mb-2">暂无工作流</div>
-          <p className="text-gray-500 mb-4">
-            {searchTerm || filterStatus !== 'all' ? '没有符合条件的工作流' : '开始创建您的第一个工作流'}
-          </p>
-          {!searchTerm && filterStatus === 'all' && (
+    <div className="min-h-screen bg-gray-50">
+      {/* 页面标题栏 */}
+      <div className="bg-white border-b border-gray-200 px-6 py-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-teal-600 rounded-xl flex items-center justify-center">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+                </svg>
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">工作流管理</h1>
+                <p className="text-gray-600 mt-1">创建和管理您的SEO内容生成工作流</p>
+              </div>
+            </div>
             <Button
               variant="primary"
               onClick={() => setShowCreateForm(true)}
+              className="bg-blue-600 hover:bg-blue-700 font-semibold px-6 py-3 text-base"
             >
-              创建工作流
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              新建工作流
             </Button>
-          )}
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWorkflows.map((workflow) => (
-            <Card
-              key={workflow.id}
-              className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1 border border-gray-200 rounded-lg overflow-hidden"
-            >
-              <div className="p-6">
-                {/* 工作流标题和状态 */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
-                      {workflow.name}
-                      {workflow.isDefault && (
-                        <Badge variant="success" className="ml-2 text-xs">
-                          默认
-                        </Badge>
-                      )}
-                    </h3>
-                  </div>
-                  <Badge 
-                    variant={STATUS_CONFIG[workflow.status].variant}
-                    className={cn("ml-2 flex-shrink-0", STATUS_CONFIG[workflow.status].className)}
-                  >
-                    {STATUS_CONFIG[workflow.status].label}
-                  </Badge>
-                </div>
+      </div>
 
-                {/* 工作流描述 */}
-                {workflow.description && (
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {workflow.description}
-                  </p>
-                )}
+      {/* 主要内容区域 */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {/* 搜索和筛选栏 */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <Input
+                type="text"
+                placeholder="搜索工作流名称或描述..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-11 border-2 focus:border-blue-500"
+              />
+            </div>
+            
+            <div className="flex gap-3">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[120px]"
+              >
+                <option value="all">全部状态</option>
+                <option value="active">激活</option>
+                <option value="inactive">停用</option>
+                <option value="draft">草稿</option>
+              </select>
 
-                {/* 结构化数据类型 */}
-                {workflow.structuredDataTypes && workflow.structuredDataTypes.length > 0 && (
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {workflow.structuredDataTypes.slice(0, 3).map((type) => (
-                        <Badge key={type} variant="info" className="text-xs">
-                          {type}
-                        </Badge>
-                      ))}
-                      {workflow.structuredDataTypes.length > 3 && (
-                        <Badge variant="info" className="text-xs">
-                          +{workflow.structuredDataTypes.length - 3}
-                        </Badge>
-                      )}
+              <select
+                value={`${sortBy}-${sortOrder}`}
+                onChange={(e) => {
+                  const [field, order] = e.target.value.split('-');
+                  setSortBy(field as any);
+                  setSortOrder(order as any);
+                }}
+                className="px-4 py-2 border-2 border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 bg-white min-w-[120px]"
+              >
+                <option value="updatedAt-desc">最近更新</option>
+                <option value="createdAt-desc">最近创建</option>
+                <option value="name-asc">名称升序</option>
+                <option value="name-desc">名称降序</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* 工作流列表 */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <span className="text-lg text-gray-600">加载中...</span>
+            </div>
+          </div>
+        ) : filteredWorkflows.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h8m-8 6h16" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">暂无工作流</h3>
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
+              {searchTerm || filterStatus !== 'all' ? '没有符合条件的工作流' : '开始创建您的第一个工作流，快速生成高质量的SEO内容'}
+            </p>
+            {!searchTerm && filterStatus === 'all' && (
+              <Button
+                variant="primary"
+                onClick={() => setShowCreateForm(true)}
+                className="bg-blue-600 hover:bg-blue-700 font-semibold px-6 py-3"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                创建工作流
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredWorkflows.map((workflow) => (
+              <Card
+                key={workflow.id}
+                className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-200 rounded-xl overflow-hidden bg-white"
+              >
+                <div className="p-6">
+                  {/* 工作流标题和状态 */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                        {workflow.name}
+                        {workflow.isDefault && (
+                          <Badge variant="success" className="ml-2 text-xs font-medium">
+                            默认
+                          </Badge>
+                        )}
+                      </h3>
                     </div>
+                    <Badge 
+                      variant={STATUS_CONFIG[workflow.status].variant}
+                      className={cn("ml-2 flex-shrink-0 font-medium", STATUS_CONFIG[workflow.status].className)}
+                    >
+                      {STATUS_CONFIG[workflow.status].label}
+                    </Badge>
                   </div>
-                )}
 
-                {/* 时间信息 */}
-                <div className="text-xs text-gray-500 mb-4 space-y-1">
-                  <div>创建：{formatDate(workflow.createdAt)}</div>
-                  <div>更新：{formatDate(workflow.updatedAt)}</div>
-                </div>
+                  {/* 工作流描述 */}
+                  {workflow.description && (
+                    <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                      {workflow.description}
+                    </p>
+                  )}
 
-                {/* 操作按钮 */}
-                <div className="flex gap-2 flex-wrap">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setEditingWorkflow(workflow);
-                      setShowEditForm(true);
-                    }}
-                    className="flex-1 min-w-0"
-                  >
-                    编辑
-                  </Button>
-                  
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDuplicateWorkflow(workflow)}
-                    className="px-3"
-                  >
-                    复制
-                  </Button>
+                  {/* 结构化数据类型 */}
+                  {workflow.structuredDataTypes && workflow.structuredDataTypes.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-2">
+                        {workflow.structuredDataTypes.slice(0, 3).map((type) => (
+                          <Badge key={type} variant="info" className="text-xs font-medium px-2 py-1">
+                            {type}
+                          </Badge>
+                        ))}
+                        {workflow.structuredDataTypes.length > 3 && (
+                          <Badge variant="info" className="text-xs font-medium px-2 py-1">
+                            +{workflow.structuredDataTypes.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
-                  {!workflow.isDefault && (
+                  {/* 时间信息 */}
+                  <div className="text-xs text-gray-500 mb-5 space-y-1">
+                    <div>创建：{formatDate(workflow.createdAt)}</div>
+                    <div>更新：{formatDate(workflow.updatedAt)}</div>
+                  </div>
+
+                  {/* 操作按钮 */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingWorkflow(workflow);
+                        setShowEditForm(true);
+                      }}
+                      className="flex-1 min-w-0 border-2 font-medium"
+                    >
+                      编辑
+                    </Button>
+                    
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleSetDefault(workflow)}
-                      className="px-3"
+                      onClick={() => handleDuplicateWorkflow(workflow)}
+                      className="px-3 font-medium"
                     >
-                      设为默认
+                      复制
                     </Button>
-                  )}
 
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => {
-                      setDeletingWorkflow(workflow);
-                      setShowDeleteConfirm(true);
-                    }}
-                    className="px-3"
-                  >
-                    删除
-                  </Button>
+                    {!workflow.isDefault && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSetDefault(workflow)}
+                        className="px-3 font-medium"
+                      >
+                        设为默认
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => {
+                        setDeletingWorkflow(workflow);
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="px-3 font-medium"
+                    >
+                      删除
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* 创建工作流表单 */}
       <WorkflowForm
@@ -477,12 +507,14 @@ export default function WorkflowPage() {
                 setShowDeleteConfirm(false);
                 setDeletingWorkflow(null);
               }}
+              className="font-medium"
             >
               取消
             </Button>
             <Button
               variant="danger"
               onClick={handleDeleteWorkflow}
+              className="font-medium"
             >
               确认删除
             </Button>
