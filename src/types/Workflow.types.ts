@@ -1,7 +1,12 @@
 /**
  * 结构化数据类型枚举
  */
-export type StructuredDataType = 'game' | 'video' | 'review' | 'breadcrumb' | 'faq';
+export type StructuredDataType = 'videoGame' | 'videoObject' | 'review' | 'breadcrumbList' | 'faqPage' | 'article' | 'organization' | 'website';
+
+/**
+ * 工作流状态枚举
+ */
+export type WorkflowStatus = 'active' | 'inactive' | 'draft';
 
 /**
  * 工作流接口定义
@@ -14,15 +19,17 @@ export interface Workflow {
   /** 工作流描述 */
   description?: string;
   /** AI生成内容的Prompt模板 */
-  promptTemplate: string;
+  prompt: string;
   /** games.json参考格式 */
-  gamesJsonFormat: string;
+  gameDataFormat?: string;
   /** 选择的结构化数据类型 */
   structuredDataTypes: StructuredDataType[];
-  /** 创建时间 */
-  createdAt: Date;
-  /** 最后修改时间 */
-  updatedAt: Date;
+  /** 工作流状态 */
+  status: WorkflowStatus;
+  /** 创建时间 (时间戳) */
+  createdAt: number;
+  /** 最后修改时间 (时间戳) */
+  updatedAt: number;
   /** 是否为默认工作流 */
   isDefault?: boolean;
 }
@@ -33,9 +40,11 @@ export interface Workflow {
 export interface CreateWorkflowInput {
   name: string;
   description?: string;
-  promptTemplate: string;
-  gamesJsonFormat: string;
+  prompt: string;
+  gameDataFormat?: string;
   structuredDataTypes: StructuredDataType[];
+  status?: WorkflowStatus;
+  isDefault?: boolean;
 }
 
 /**
@@ -44,9 +53,11 @@ export interface CreateWorkflowInput {
 export interface UpdateWorkflowInput {
   name?: string;
   description?: string;
-  promptTemplate?: string;
-  gamesJsonFormat?: string;
+  prompt?: string;
+  gameDataFormat?: string;
   structuredDataTypes?: StructuredDataType[];
+  status?: WorkflowStatus;
+  isDefault?: boolean;
 }
 
 /**
@@ -54,7 +65,7 @@ export interface UpdateWorkflowInput {
  */
 export interface WorkflowExport {
   version: string;
-  exportedAt: Date;
+  exportedAt: number;
   workflow: Omit<Workflow, 'id' | 'createdAt' | 'updatedAt'>;
 }
 
