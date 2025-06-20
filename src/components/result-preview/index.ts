@@ -3,11 +3,12 @@
  */
 
 export { ResultPreview } from './ResultPreview';
-export { QualityAnalysis } from './QualityAnalysis';
+export { default as QualityAnalysis } from './QualityAnalysis';
 export { ResultsList } from './ResultsList';
 export { ExportDialog } from './ExportDialog';
 export { ExportHistory } from './ExportHistory';
 export { ResultPreviewManager } from './ResultPreviewManager';
+export { default as ResultsPanel } from './ResultsPanel';
 
 // 导出相关类型
 export type {
