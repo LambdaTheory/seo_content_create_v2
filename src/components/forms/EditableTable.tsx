@@ -17,6 +17,7 @@ import { Badge } from '@/components/ui/Badge';
 import { GameData } from '@/types/GameData.types';
 import { cn } from '@/utils/classNames';
 import { DataSortFilter, SortConfig, FilterConfig } from './DataSortFilter';
+import { Pagination } from '@/components/ui/Pagination';
 
 /**
  * 编辑器类型
@@ -94,6 +95,19 @@ export interface EditableTableProps {
   initialSortConfig?: SortConfig;
   /** 初始筛选配置 */
   initialFilterConfig?: FilterConfig;
+  /** 是否启用分页 */
+  enablePagination?: boolean;
+  /** 初始页码 */
+  initialPage?: number;
+  /** 初始页面大小 */
+  initialPageSize?: number;
+  /** 分页配置 */
+  paginationConfig?: {
+    showSizeChanger?: boolean;
+    showQuickJumper?: boolean;
+    showTotal?: boolean;
+    pageSizeOptions?: number[];
+  };
   /** 自定义样式类名 */
   className?: string;
 }
@@ -127,6 +141,10 @@ export const EditableTable: React.FC<EditableTableProps> = ({
   enableSortFilter = false,
   initialSortConfig,
   initialFilterConfig,
+  enablePagination = false,
+  initialPage = 1,
+  initialPageSize = 10,
+  paginationConfig,
   className = ''
 }) => {
   // 编辑状态管理
@@ -144,6 +162,10 @@ export const EditableTable: React.FC<EditableTableProps> = ({
   const [filteredData, setFilteredData] = useState<GameData[]>(data);
   const [sortConfig, setSortConfig] = useState<SortConfig | undefined>(initialSortConfig);
   const [filterConfig, setFilterConfig] = useState<FilterConfig | undefined>(initialFilterConfig);
+
+  // 分页状态
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
 
   // 开始编辑行
   const startEdit = useCallback((rowIndex: number) => {
@@ -410,10 +432,33 @@ export const EditableTable: React.FC<EditableTableProps> = ({
     setFilterConfig(filterConfig);
   }, []);
 
+  // 分页数据处理
+  const paginatedData = useMemo(() => {
+    if (!enablePagination) {
+      return filteredData;
+    }
+
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return filteredData.slice(startIndex, endIndex);
+  }, [enablePagination, filteredData, currentPage, pageSize]);
+
+  // 分页变化处理
+  const handlePaginationChange = useCallback((page: number, newPageSize: number) => {
+    setCurrentPage(page);
+    if (newPageSize !== pageSize) {
+      setPageSize(newPageSize);
+    }
+  }, [pageSize]);
+
   // 更新原始数据时同步更新筛选数据
   React.useEffect(() => {
     setFilteredData(data);
-  }, [data]);
+    // 重置到第一页
+    if (enablePagination) {
+      setCurrentPage(1);
+    }
+  }, [data, enablePagination]);
 
   // 构建表格列
   const tableColumns = useMemo(() => {
@@ -581,11 +626,25 @@ export const EditableTable: React.FC<EditableTableProps> = ({
       <div ref={tableRef} className="overflow-auto">
         <Table
           columns={tableColumns}
-          dataSource={enableSortFilter ? filteredData : data}
+          dataSource={enablePagination ? paginatedData : (enableSortFilter ? filteredData : data)}
           hoverable
           bordered
         />
       </div>
+
+      {/* 分页器 */}
+      {enablePagination && (
+        <Pagination
+          current={currentPage}
+          pageSize={pageSize}
+          total={enableSortFilter ? filteredData.length : data.length}
+          onChange={handlePaginationChange}
+          showSizeChanger={paginationConfig?.showSizeChanger}
+          showQuickJumper={paginationConfig?.showQuickJumper}
+          showTotal={paginationConfig?.showTotal}
+          pageSizeOptions={paginationConfig?.pageSizeOptions}
+        />
+      )}
 
       {/* 统计信息 */}
       <div className="flex items-center justify-between text-sm text-gray-600">

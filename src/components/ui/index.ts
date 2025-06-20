@@ -36,6 +36,7 @@ export {
   LoadingOverlay 
 } from './Loading';
 export { Modal, ModalHeader, ModalBody, ModalFooter } from './Modal';
+export { Pagination } from './Pagination';
 export { Table } from './Table';
 export { 
   Tag,
@@ -105,6 +106,7 @@ export type {
   ModalBodyProps, 
   ModalFooterProps 
 } from './Modal/Modal.types';
+export type { PaginationProps } from './Pagination';
 export type { 
   TableProps,
   TableColumn,
