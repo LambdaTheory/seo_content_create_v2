@@ -177,4 +177,14 @@ export class DataMigrationService {
 /**
  * 默认的数据迁移服务实例
  */
-export const dataMigrationService = new DataMigrationService(); 
+export const dataMigrationService = new DataMigrationService();
+
+// 竞品数据采集服务
+export { SitemapService } from './SitemapService';
+export { SitemapSchedulerService } from './SitemapSchedulerService';
+export { CompetitorDatabaseService } from './CompetitorDatabaseService';
+
+// 游戏匹配和分析服务
+export { GameMatchingService } from './GameMatchingService';
+export { GameNameNormalizationService } from './GameNameNormalizationService';
+export { KeywordExtractionService } from './KeywordExtractionService'; 
