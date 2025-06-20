@@ -20,6 +20,11 @@ export {
   Sidebar
 } from './Sidebar';
 
+export {
+  Footer,
+  useFooterStatus
+} from './Footer';
+
 export type {
   LayoutProps,
   LayoutContainerProps,
@@ -43,6 +48,16 @@ export type {
   UserInfo
 } from './Header.types';
 
+export type {
+  FooterProps,
+  OperationStatus,
+  ProgressInfo,
+  StatusItem,
+  StatusDisplayProps,
+  ProgressDisplayProps,
+  StatusItemProps
+} from './Footer.types';
+
 export {
   LAYOUT_SIZES,
   LAYOUT_BREAKPOINTS
@@ -50,4 +65,8 @@ export {
 
 export {
   HEADER_CONSTANTS
-} from './Header.types'; 
+} from './Header.types';
+
+export {
+  FOOTER_CONSTANTS
+} from './Footer.types'; 
