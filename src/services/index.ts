@@ -218,4 +218,16 @@ export type {
   SortingConfig,
   EnhancedMatchResult,
   SortingStats
-} from './GameMatchingSortingService'; 
+} from './GameMatchingSortingService';
+
+// 游戏匹配阈值配置服务
+export { GameMatchingThresholdService } from './GameMatchingThresholdService';
+export type {
+  ThresholdConfig,
+  DynamicAdjustmentConfig,
+  QualityWeights,
+  PerformanceConfig,
+  QualityAssessment,
+  ThresholdAdjustmentHistory,
+  ThresholdStats
+} from './GameMatchingThresholdService'; 
