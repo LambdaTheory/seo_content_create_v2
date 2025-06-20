@@ -190,6 +190,18 @@ export { GameNameNormalizationService } from './GameNameNormalizationService';
 export { KeywordExtractionService } from './KeywordExtractionService';
 export { GameMatchingSortingService } from './GameMatchingSortingService';
 
+// AI 内容生成服务
+export { deepseekApi, DeepSeekApiService, chatWithDeepSeek } from './deepseekApi';
+export type { 
+  DeepSeekConfig,
+  ChatMessage,
+  ChatRequest,
+  ChatResponse,
+  DeepSeekError,
+  DeepSeekStats,
+  DeepSeekCacheStats
+} from './deepseekApi';
+
 // 导出类型定义
 export type { 
   MatchResult, 
@@ -269,4 +281,67 @@ export type {
   ParserComparison,
   MonitorConfig,
   RealTimeStatus
-} from './ContentParsingMonitorService'; 
+} from './ContentParsingMonitorService';
+
+// 多级缓存系统
+export { multiLevelCache, MultiLevelCacheService } from './multiLevelCacheService';
+export type {
+  CacheItem,
+  CacheConfig,
+  CacheStats
+} from './multiLevelCacheService';
+
+// 缓存优化算法服务
+export { cacheOptimizer, CacheOptimizationService } from './cacheOptimizationService';
+export type {
+  HotDataInfo,
+  CacheRecommendation,
+  CacheOptimizationReport,
+  PredictivePreloadConfig
+} from './cacheOptimizationService';
+
+// 内容设置管理服务
+export { contentSettingsService, ContentSettingsService } from './contentSettingsService';
+
+// 工作流管理服务
+export { workflowImportExport } from './workflowImportExport';
+
+// CSV数据处理服务
+export { csvService } from './csvService';
+export { dataValidation } from './dataValidation';
+
+// 数据导出服务
+export { dataExport } from './dataExport';
+
+// 本地存储服务
+export { localStorage } from './localStorage';
+
+// AI内容生成相关服务
+export { deepSeekApi } from './deepseekApi';
+export { formatAnalysisService } from './formatAnalysisService';
+export { contentGenerationService } from './contentGenerationService';
+export { formatValidationService } from './formatValidationService';
+export { retryMechanismService } from './retryMechanismService';
+export { threeStageOrchestrationService } from './threeStageOrchestrationService';
+export { multiLevelCacheService } from './multiLevelCacheService';
+export { cacheOptimizationService } from './cacheOptimizationService';
+
+// 内容设置服务
+export { contentSettingsService } from './contentSettingsService';
+
+// 结果导出服务
+export { resultExportService } from './resultExportService';
+
+// 结构化数据生成服务
+export { StructuredDataService } from './structuredData/StructuredDataService';
+
+// 内容生成流程编排服务
+export { contentGenerationOrchestrator, ContentGenerationOrchestrator } from './contentGenerationOrchestrator';
+export type {
+  FlowStatus,
+  GenerationStage,
+  StepStatus,
+  GenerationFlowConfiguration,
+  FlowExecutionStatus,
+  QueueItem
+} from './contentGenerationOrchestrator'; 
