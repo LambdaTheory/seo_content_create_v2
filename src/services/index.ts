@@ -257,4 +257,16 @@ export type {
 export { CoolMathGamesParser } from './parsers/CoolMathGamesParser';
 export { GameDistributionParser } from './parsers/GameDistributionParser';
 export { TwoPlayerGamesParser } from './parsers/TwoPlayerGamesParser';
-export { GenericHtmlParser } from './parsers/GenericHtmlParser'; 
+export { GenericHtmlParser } from './parsers/GenericHtmlParser';
+
+// 内容解析进度监控服务
+export { ContentParsingMonitorService } from './ContentParsingMonitorService';
+export type {
+  ParseStatus,
+  ParseTask,
+  ErrorLogEntry,
+  PerformanceMetrics,
+  ParserComparison,
+  MonitorConfig,
+  RealTimeStatus
+} from './ContentParsingMonitorService'; 
